@@ -5,10 +5,9 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-    <!-- Permissions for Wi-Fi & Sockets -->
+    <!-- Permissions for Network & Sockets (OSM Map Tiles / Routing) -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <!-- Permissions for Bluetooth -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -25,7 +24,7 @@
     <application
         android:allowBackup="true"
         android:icon="@android:drawable/ic_dialog_map"
-        android:label="Chery AutoNav"
+        android:label="CheryNav"
         android:roundIcon="@android:drawable/ic_dialog_map"
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">

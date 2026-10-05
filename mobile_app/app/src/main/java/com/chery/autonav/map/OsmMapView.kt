@@ -20,6 +20,7 @@ class OsmMapView @JvmOverloads constructor(
     private var zoom: Int = 16
 
     private var routePoints: List<Pair<Double, Double>> = emptyList()
+    private var lastDisplayKey: String? = null
 
     // Paints
     private val bgPaint = Paint().apply { color = Color.rgb(20, 24, 30) }
@@ -95,10 +96,21 @@ class OsmMapView @JvmOverloads constructor(
         val centerTileX = (worldPx / 256.0).toInt()
         val centerTileY = (worldPy / 256.0).toInt()
 
-        // 3. Render 3x3 surrounding tiles
-        var renderedTiles = 0
-        for (dy in -2..2) {
-            for (dx in -2..2) {
+        // 3. Render enough tiles to fill the whole view (not just a 5x5 block).
+        val halfCols = ceil((w / 2f) / 256f).toInt() + 1
+        val halfRows = ceil((h / 2f) / 256f).toInt() + 1
+
+        // Make sure the phone has downloaded the tiles this viewport needs (for
+        // display only — the car still gets just the 3x3 around the vehicle).
+        // Throttled to when the center tile or style changes.
+        val centerKey = "${zoom}/${centerTileX}/${centerTileY}/${tileManager?.getSelectedStyleId()}"
+        if (centerKey != lastDisplayKey) {
+            lastDisplayKey = centerKey
+            tileManager?.ensureDisplayArea(carLat, carLon, halfCols, halfRows, zoom)
+        }
+
+        for (dy in -halfRows..halfRows) {
+            for (dx in -halfCols..halfCols) {
                 val tx = (centerTileX + dx).toLong()
                 val ty = (centerTileY + dy).toLong()
 
@@ -112,11 +124,8 @@ class OsmMapView @JvmOverloads constructor(
                 val bmp = tileManager?.getTileBitmap(zoom, tx, ty)
                 if (bmp != null && !bmp.isRecycled) {
                     canvas.drawBitmap(bmp, screenX, screenY, null)
-                    renderedTiles++
-                } else {
-                    // Draw Tile Placeholder Outline
-                    canvas.drawRect(screenX, screenY, screenX + 256f, screenY + 256f, gridPaint)
                 }
+                // Missing tiles just show the dark background (clean, Google-style).
             }
         }
 
@@ -160,14 +169,5 @@ class OsmMapView @JvmOverloads constructor(
         }
         canvas.drawPath(carPath, carPaint)
         canvas.restore()
-
-        // 6. Draw Status HUD Overlay
-        val synced = tileManager?.getSyncedCount() ?: 0
-        val pending = tileManager?.getPendingCount() ?: 0
-        val statusMsg = "Car Screen Cache: $synced tiles synced" + (if (pending > 0) " ($pending pending)" else " (Up-to-date)")
-
-        val badgeRect = RectF(20f, 20f, w - 20f, 85f)
-        canvas.drawRoundRect(badgeRect, 16f, 16f, badgeBgPaint)
-        canvas.drawText(statusMsg, 40f, 62f, badgeTextPaint)
     }
 }

@@ -1,4 +1,4 @@
-# Chery AutoNav — Navigation & Map Bridge (Bluetooth)
+# CheryNav — Navigation & Map Bridge (Bluetooth)
 
 مشروع لربط شاشة سيارة شيري (**Windows CE 6.0 / ARMV4I**) بهاتف أندرويد **عبر البلوتوث فقط (Bluetooth SPP)**،
 لعرض التوجيه خطوة بخطوة (Turn-by-Turn)، خط المسار على الخريطة، وعداد سرعة ذكي مع ETA — بتحكّم باللمس من الشاشة.
@@ -26,9 +26,8 @@ CheryAutoNav/
 ├── mobile_app/                    # تطبيق الموبايل (Kotlin / Android)
 │   ├── .../bluetooth/             # سيرفر Bluetooth SPP (RFCOMM) يبثّ للشاشة
 │   ├── .../location/              # GPS + محاكاة رحلة للتجربة بدون حركة
-│   ├── .../map/                   # رندر الخريطة off-screen وتحويلها RGB565
+│   ├── .../map/                   # رندر الخريطة ومزامنة المربعات (OSM Tiles)
 │   ├── .../navigation/            # حساب المسار والمنعطفات و ETA
-│   ├── .../server/                # سيرفر TCP احتياطي (Wi-Fi) — غير مستخدم في وضع البلوتوث
 │   └── .../service/               # Foreground Service تعمل في الخلفية
 │
 ├── tools/                         # أدوات البناء على الـ CI (cegcc setup + فحص PE)
@@ -108,7 +107,7 @@ CheryAutoNav/
 
 1. نزّل `app-debug.apk` من رابط التحميل أعلاه وثبّته، أو افتح `mobile_app/` في Android Studio واضغط Run.
 2. فعّل **البلوتوث** واقرن الهاتف بموديول بلوتوث السيارة.
-3. افتح **Chery AutoNav** وفعّل سويتش **Bridge Service** (يعمل كخدمة في الخلفية).
+3. افتح **CheryNav** وفعّل سويتش **Bridge Service** (يعمل كخدمة في الخلفية).
 4. شغّل `CheryNav.exe` على الشاشة — هيتصل عبر البلوتوث ويبدأ عرض التوجيه والسرعة والمسار.
 
 > يوجد وضع محاكاة مدمج (رحلة تجريبية) لاختبار الرسم بدون تحرّك السيارة.

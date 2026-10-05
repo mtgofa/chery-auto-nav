@@ -1,184 +1,214 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#12161E"
-    android:fillViewport="true">
+    android:background="#0B0E13">
 
-    <LinearLayout
+    <!-- Full-screen map -->
+    <com.chery.autonav.map.OsmMapView
+        android:id="@+id/osmMapView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Floating search bar (Google-Maps style) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/searchCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:layout_gravity="top"
+        android:layout_marginStart="14dp"
+        android:layout_marginEnd="14dp"
+        android:layout_marginTop="14dp"
+        app:cardBackgroundColor="#1B2029"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="8dp">
 
-        <!-- Header -->
-        <TextView
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="8dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_menu_search"
+                android:tint="#8A97A8" />
+
+            <EditText
+                android:id="@+id/etDestination"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:background="@android:color/transparent"
+                android:hint="ابحث عن وجهة..."
+                android:textColorHint="#6D7988"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:maxLines="1"
+                android:singleLine="true" />
+
+            <ProgressBar
+                android:id="@+id/searchProgress"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="8dp"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/btnClearSearch"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="8dp"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:tint="#8A97A8"
+                android:visibility="gone"
+                android:background="?android:attr/selectableItemBackgroundBorderless" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Compact status chip under the search bar -->
+    <TextView
+        android:id="@+id/tvCarStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|start"
+        android:layout_marginStart="22dp"
+        android:layout_marginTop="80dp"
+        android:background="#CC1B2029"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:text="بانتظار اتصال البلوتوث..."
+        android:textColor="#FFC65C"
+        android:textSize="12sp" />
+
+    <!-- Right-side floating action buttons -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="150dp"
+        android:orientation="vertical">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabService"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Chery AutoNav"
-            android:textColor="#FFFFFF"
-            android:textSize="26sp"
-            android:textStyle="bold" />
+            android:layout_marginBottom="14dp"
+            android:src="@android:drawable/ic_lock_power_off"
+            app:backgroundTint="#2A313D"
+            app:tint="#FF6B6B"
+            app:fabSize="normal" />
 
-        <TextView
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabLayers"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Navigation &amp; Map Bridge for Car Screen (Bluetooth)"
-            android:textColor="#8E99A8"
-            android:textSize="14sp" />
+            android:layout_marginBottom="14dp"
+            android:src="@android:drawable/ic_menu_mapmode"
+            app:backgroundTint="#2A313D"
+            app:tint="#BFD0E6"
+            app:fabSize="mini" />
 
-        <!-- Status Card -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabMyLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_mylocation"
+            app:backgroundTint="#1A73E8"
+            app:tint="#FFFFFF"
+            app:fabSize="normal" />
+    </LinearLayout>
+
+    <!-- Attribution (required by tile providers) -->
+    <TextView
+        android:id="@+id/tvAttribution"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="6dp"
+        android:background="#66000000"
+        android:paddingStart="6dp"
+        android:paddingEnd="6dp"
+        android:text="© Mapbox © OpenStreetMap"
+        android:textColor="#C8D2DF"
+        android:textSize="10sp" />
+
+    <!-- Bottom route / status card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/bottomCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="12dp"
+        app:cardBackgroundColor="#1B2029"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="10dp">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:background="#1C222D"
             android:orientation="vertical"
             android:padding="16dp">
+
+            <TextView
+                android:id="@+id/tvRouteLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="رحلة تجريبية"
+                android:textColor="#FFFFFF"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/tvRouteStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="اكتب وجهة في البحث فوق للانطلاق"
+                android:textColor="#9AA7B6"
+                android:textSize="13sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
+                android:layout_marginTop="12dp"
                 android:orientation="horizontal">
 
                 <TextView
+                    android:id="@+id/tvTileSyncStatus"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
                     android:layout_weight="1"
-                    android:text="Bridge Service"
-                    android:textColor="#FFFFFF"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:text="كاش الشاشة: 0 بلاطة"
+                    android:textColor="#00C2FF"
+                    android:textSize="12sp" />
 
-                <Switch
-                    android:id="@+id/switchService"
+                <Button
+                    android:id="@+id/btnClearRoute"
+                    style="?android:attr/borderlessButtonStyle"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:text="مسح المسار"
+                    android:textColor="#FF6B6B"
+                    android:textSize="13sp" />
             </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="12dp"
-                android:background="#2E3747" />
-
-            <TextView
-                android:id="@+id/tvIpAddress"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Bluetooth SPP Server: CheryNavBridge"
-                android:textColor="#00DCFF"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvCarStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="Car Screen: Waiting for Bluetooth connection..."
-                android:textColor="#FFA726"
-                android:textSize="14sp" />
         </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
-        <!-- Live Map Card -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="#1C222D"
-            android:orientation="vertical"
-            android:padding="14dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Live Navigation Map"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvTileSyncStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="10dp"
-                android:text="Car Screen Cache: 0 tiles synced"
-                android:textColor="#00DCFF"
-                android:textSize="13sp" />
-
-            <com.chery.autonav.map.OsmMapView
-                android:id="@+id/osmMapView"
-                android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:background="#14181E" />
-        </LinearLayout>
-
-        <!-- Simulation & Controls -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="#1C222D"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Simulation &amp; Route"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Simulate a real drive from Tahrir to Airport to test tile syncing and speedometer."
-                android:textColor="#8E99A8"
-                android:textSize="13sp" />
-
-            <Button
-                android:id="@+id/btnResetRoute"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="#007ACC"
-                android:text="Reload Demo Route"
-                android:textColor="#FFFFFF" />
-        </LinearLayout>
-
-        <!-- Instructions Guide -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="#1C222D"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Quick Bluetooth Setup Guide"
-                android:textColor="#00DCFF"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:lineSpacingExtra="4dp"
-                android:text="1. Pair your phone via Bluetooth with car radio.\n2. Turn ON 'Bridge Service' toggle above.\n3. Open CheryNav.exe on car screen.\n4. Map tiles will sync and save directly onto your car SD card."
-                android:textColor="#D0D7DE"
-                android:textSize="13sp" />
-        </LinearLayout>
-
-    </LinearLayout>
-</ScrollView>
+</FrameLayout>

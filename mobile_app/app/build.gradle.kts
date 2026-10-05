@@ -1,6 +1,18 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+}
+
+// Read the Mapbox public token from local.properties (gitignored) so it never
+// gets committed. Falls back to an empty string if missing (Mapbox styles then
+// simply won't load; the free OSM/Thunderforest styles still work).
+val mapboxToken: String = run {
+    val p = Properties()
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { p.load(it) }
+    p.getProperty("MAPBOX_TOKEN", "")
 }
 
 android {
@@ -14,6 +26,12 @@ android {
         versionCode = 1
         versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "MAPBOX_TOKEN", "\"$mapboxToken\"")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {

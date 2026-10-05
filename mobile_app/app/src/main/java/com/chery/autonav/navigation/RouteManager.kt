@@ -20,14 +20,39 @@ class RouteManager {
     private var totalDistanceM = 0
     private var remainingDistanceM = 0
     private var remainingTimeSec = 0
+    private var isCustomRoute = false
 
     init {
         loadDemoRoute()
     }
 
+    /**
+     * Replace the demo route with a real route (e.g. from OSRM).
+     * Resets progress so guidance + car polyline start from step 0.
+     */
+    fun setCustomRoute(
+        points: List<Pair<Double, Double>>,
+        steps: List<RouteStep>,
+        totalDistM: Int,
+        totalTimeSec: Int
+    ) {
+        routeSteps.clear()
+        routeSteps.addAll(steps)
+        routePolyline.clear()
+        routePolyline.addAll(points)
+        currentStepIdx = 0
+        totalDistanceM = totalDistM
+        remainingDistanceM = totalDistM
+        remainingTimeSec = totalTimeSec
+        isCustomRoute = true
+    }
+
+    fun isCustom(): Boolean = isCustomRoute
+
     fun loadDemoRoute() {
         routeSteps.clear()
         routePolyline.clear()
+        isCustomRoute = false
 
         // Demo route in Cairo (Salah Salem to Ring Road / Airport)
         val baseLat = 30.0444
@@ -58,6 +83,43 @@ class RouteManager {
     }
 
     fun getRoutePoints(): List<Pair<Double, Double>> = routePolyline
+
+    /**
+     * Window of the route around the car for the head unit.
+     * The car packet holds max 80 points, so for long real routes we send
+     * the upcoming segment (from the nearest point forward) instead of
+     * just the first 80 points of the whole trip.
+     */
+    fun getUpcomingPoints(carLat: Double, carLon: Double, max: Int = 80): List<Pair<Double, Double>> {
+        if (routePolyline.size <= max) return routePolyline
+        var bestIdx = 0
+        var bestD = Double.MAX_VALUE
+        for (i in routePolyline.indices) {
+            val p = routePolyline[i]
+            val dLat = p.first - carLat
+            val dLon = p.second - carLon
+            val d = dLat * dLat + dLon * dLon
+            if (d < bestD) {
+                bestD = d
+                bestIdx = i
+            }
+        }
+        val remaining = routePolyline.size - bestIdx
+        if (remaining <= max) {
+            // Not enough points ahead: pad with the tail behind the car.
+            val from = maxOf(0, routePolyline.size - max)
+            return routePolyline.subList(from, routePolyline.size)
+        }
+        // Decimate the upcoming segment if it is much longer than max.
+        val segment = routePolyline.subList(bestIdx, routePolyline.size)
+        if (segment.size <= max) return segment.toList()
+        val step = segment.size.toDouble() / max
+        val out = ArrayList<Pair<Double, Double>>(max)
+        for (i in 0 until max) {
+            out.add(segment[(i * step).toInt()])
+        }
+        return out
+    }
 
     fun getCurrentStep(): RouteStep {
         return if (routeSteps.isNotEmpty()) routeSteps[currentStepIdx]

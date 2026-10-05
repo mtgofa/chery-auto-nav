@@ -59,7 +59,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLin
 
     g_hWnd = CreateWindow(
         TEXT("CheryAutoNavWnd"),
-        TEXT("Chery Auto Navigation"),
+        TEXT("CheryNav"),
         WS_POPUP | WS_VISIBLE,
         0, 0, SCREEN_WIDTH, SCREEN_HEIGHT,
         NULL, NULL, hInstance, NULL
