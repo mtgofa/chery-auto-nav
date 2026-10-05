@@ -70,12 +70,31 @@ class LocationManagerHelper(private val context: Context, private val onLocation
         isSimulating = enabled
     }
 
+    private fun routeLengthMeters(pts: List<Pair<Double, Double>>): Double {
+        var total = 0.0
+        for (i in 1 until pts.size) {
+            val (lat1, lon1) = pts[i - 1]
+            val (lat2, lon2) = pts[i]
+            val dLat = Math.toRadians(lat2 - lat1)
+            val dLon = Math.toRadians(lon2 - lon1)
+            val a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                    Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                    Math.sin(dLon / 2) * Math.sin(dLon / 2)
+            total += 6371000.0 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+        }
+        return total
+    }
+
     fun tickSimulation(routePoints: List<Pair<Double, Double>>): VehicleLocation {
         if (routePoints.isEmpty()) {
             return VehicleLocation(30.0444, 31.2357, 0f, 0f, 20f, 3f, true)
         }
 
-        simProgress = (simProgress + 0.002) % 1.0
+        // Advance by a realistic distance per tick (not a fixed fraction, which
+        // made short demo routes crawl and long ones fly at 800 km/h). ~55 km/h
+        // at the 10 Hz tick = ~1.5 m per tick, so tiles have time to load.
+        val totalMeters = routeLengthMeters(routePoints).coerceAtLeast(1.0)
+        simProgress = (simProgress + 1.5 / totalMeters) % 1.0
         val idxFloat = simProgress * (routePoints.size - 1)
         val idx = idxFloat.toInt()
         val nextIdx = minOf(idx + 1, routePoints.size - 1)

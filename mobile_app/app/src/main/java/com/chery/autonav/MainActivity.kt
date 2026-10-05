@@ -28,6 +28,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 class MainActivity : AppCompatActivity() {
 
     private lateinit var osmMapView: com.chery.autonav.map.OsmMapView
+    private lateinit var searchCard: com.google.android.material.card.MaterialCardView
+    private lateinit var turnCard: com.google.android.material.card.MaterialCardView
+    private lateinit var ivTurnArrow: ImageView
+    private lateinit var tvTurnDistance: TextView
+    private lateinit var tvTurnStreet: TextView
     private lateinit var etDestination: EditText
     private lateinit var searchProgress: ProgressBar
     private lateinit var btnClearSearch: ImageView
@@ -37,6 +42,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvRouteStatus: TextView
     private lateinit var tvTileSyncStatus: TextView
     private lateinit var btnClearRoute: Button
+    private lateinit var btnRecenter: com.google.android.material.card.MaterialCardView
+    private lateinit var fabCompass: FloatingActionButton
     private lateinit var fabService: FloatingActionButton
     private lateinit var fabLayers: FloatingActionButton
     private lateinit var fabMyLocation: FloatingActionButton
@@ -56,6 +63,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         osmMapView = findViewById(R.id.osmMapView)
+        searchCard = findViewById(R.id.searchCard)
+        turnCard = findViewById(R.id.turnCard)
+        ivTurnArrow = findViewById(R.id.ivTurnArrow)
+        tvTurnDistance = findViewById(R.id.tvTurnDistance)
+        tvTurnStreet = findViewById(R.id.tvTurnStreet)
         etDestination = findViewById(R.id.etDestination)
         searchProgress = findViewById(R.id.searchProgress)
         btnClearSearch = findViewById(R.id.btnClearSearch)
@@ -65,9 +77,29 @@ class MainActivity : AppCompatActivity() {
         tvRouteStatus = findViewById(R.id.tvRouteStatus)
         tvTileSyncStatus = findViewById(R.id.tvTileSyncStatus)
         btnClearRoute = findViewById(R.id.btnClearRoute)
+        btnRecenter = findViewById(R.id.btnRecenter)
+        fabCompass = findViewById(R.id.fabCompass)
         fabService = findViewById(R.id.fabService)
         fabLayers = findViewById(R.id.fabLayers)
         fabMyLocation = findViewById(R.id.fabMyLocation)
+
+        osmMapView.onFollowStateChanged = { following ->
+            btnRecenter.visibility = if (following) android.view.View.GONE else android.view.View.VISIBLE
+        }
+        osmMapView.onCompassRotationChanged = { rot ->
+            fabCompass.rotation = rot
+        }
+        btnRecenter.setOnClickListener {
+            osmMapView.recenter()
+        }
+        fabCompass.setOnClickListener {
+            val courseUp = osmMapView.toggleCourseUp()
+            android.widget.Toast.makeText(
+                this,
+                if (courseUp) "وضع الملاحة (مع اتجاه السيارة)" else "وضع الشمال لأعلى",
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
+        }
 
         migrateToMapboxDefault()
         requestRequiredPermissions()
@@ -96,14 +128,12 @@ class MainActivity : AppCompatActivity() {
         }
         fabLayers.setOnClickListener { showStyleDialog() }
         fabMyLocation.setOnClickListener {
+            osmMapView.recenter()
             val mgr = NavForegroundService.currentTileManager ?: getPreviewManager()
             val loc = NavForegroundService.latestLocation
             val lat = loc?.latitude ?: 30.0444
             val lon = loc?.longitude ?: 31.2357
             mgr.updateVehiclePosition(lat, lon)
-            osmMapView.tileManager = mgr
-            osmMapView.updateVehicle(lat, lon, loc?.bearingDeg ?: 0f)
-            osmMapView.invalidate()
         }
 
         btnClearRoute.setOnClickListener {
@@ -127,11 +157,11 @@ class MainActivity : AppCompatActivity() {
     // token is present (older installs defaulted to Thunderforest).
     private fun migrateToMapboxDefault() {
         val prefs = getSharedPreferences(TileSources.PREFS_NAME, Context.MODE_PRIVATE)
-        if (!prefs.getBoolean("migrated_mapbox_v1", false)) {
+        if (!prefs.getBoolean("migrated_mapbox_v2", false)) {
             if (TileSources.hasMapbox()) {
                 TileSources.setSelectedId(this, "mapbox_nav_night")
             }
-            prefs.edit().putBoolean("migrated_mapbox_v1", true).apply()
+            prefs.edit().putBoolean("migrated_mapbox_v2", true).apply()
         }
     }
 
@@ -299,6 +329,47 @@ class MainActivity : AppCompatActivity() {
         // Keep the bottom label in sync with the active route when idle.
         if (tvRouteLabel.text.isNullOrBlank()) {
             tvRouteLabel.text = NavForegroundService.routeLabel
+        }
+
+        // Turn-by-turn card replaces the search bar while navigating a real route.
+        val rm = NavForegroundService.currentRouteManager
+        val navigating = rm?.isCustom() == true && loc != null
+        if (navigating) {
+            val step = rm!!.getCurrentStep()
+            val dist = rm.getDistanceToNextTurn(loc!!.latitude, loc.longitude)
+            ivTurnArrow.setImageResource(iconForManeuver(step.maneuver))
+            tvTurnDistance.text = "بعد " + formatDistance(dist)
+            tvTurnStreet.text = step.streetName
+            if (turnCard.visibility != android.view.View.VISIBLE) {
+                turnCard.visibility = android.view.View.VISIBLE
+                searchCard.visibility = android.view.View.GONE
+            }
+        } else {
+            if (turnCard.visibility != android.view.View.GONE) {
+                turnCard.visibility = android.view.View.GONE
+                searchCard.visibility = android.view.View.VISIBLE
+            }
+        }
+    }
+
+    private fun iconForManeuver(maneuver: Int): Int = when (maneuver) {
+        com.chery.autonav.protocol.ProtocolConstants.MANEUVER_LEFT -> R.drawable.ic_nav_left
+        com.chery.autonav.protocol.ProtocolConstants.MANEUVER_SLIGHT_LEFT -> R.drawable.ic_nav_slight_left
+        com.chery.autonav.protocol.ProtocolConstants.MANEUVER_SHARP_LEFT -> R.drawable.ic_nav_sharp_left
+        com.chery.autonav.protocol.ProtocolConstants.MANEUVER_RIGHT -> R.drawable.ic_nav_right
+        com.chery.autonav.protocol.ProtocolConstants.MANEUVER_SLIGHT_RIGHT -> R.drawable.ic_nav_slight_right
+        com.chery.autonav.protocol.ProtocolConstants.MANEUVER_SHARP_RIGHT -> R.drawable.ic_nav_sharp_right
+        com.chery.autonav.protocol.ProtocolConstants.MANEUVER_UTURN -> R.drawable.ic_nav_uturn
+        com.chery.autonav.protocol.ProtocolConstants.MANEUVER_ROUNDABOUT -> R.drawable.ic_nav_roundabout
+        com.chery.autonav.protocol.ProtocolConstants.MANEUVER_DESTINATION -> R.drawable.ic_nav_destination
+        else -> R.drawable.ic_nav_straight
+    }
+
+    private fun formatDistance(meters: Int): String {
+        return if (meters >= 1000) {
+            String.format("%.1f كم", meters / 1000.0)
+        } else {
+            "${(meters / 10) * 10} م"
         }
     }
 

@@ -3,52 +3,55 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0B0E13">
+    android:background="@color/nav_bg">
 
-    <!-- Full-screen map -->
+    <!-- Full-screen interactive map (pannable, pinch-to-zoom, Course-Up/North-Up) -->
     <com.chery.autonav.map.OsmMapView
         android:id="@+id/osmMapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Floating search bar (Google-Maps style) -->
+    <!-- Floating search bar -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/searchCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
-        android:layout_marginStart="14dp"
-        android:layout_marginEnd="14dp"
-        android:layout_marginTop="14dp"
-        app:cardBackgroundColor="#1B2029"
-        app:cardCornerRadius="28dp"
-        app:cardElevation="8dp">
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="52dp"
+        app:cardBackgroundColor="@color/nav_surface"
+        app:strokeColor="@color/nav_stroke"
+        app:strokeWidth="1.5dp"
+        app:cardCornerRadius="32dp"
+        app:cardElevation="14dp">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="64dp"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingStart="16dp"
-            android:paddingEnd="8dp">
+            android:paddingStart="18dp"
+            android:paddingEnd="12dp">
 
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@android:drawable/ic_menu_search"
-                android:tint="#8A97A8" />
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/ic_search"
+                app:tint="@color/text_secondary" />
 
             <EditText
                 android:id="@+id/etDestination"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="14dp"
                 android:background="@android:color/transparent"
                 android:hint="ابحث عن وجهة..."
-                android:textColorHint="#6D7988"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
+                android:textColorHint="@color/text_tertiary"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:fontFamily="sans-serif-medium"
                 android:imeOptions="actionSearch"
                 android:inputType="text"
                 android:maxLines="1"
@@ -56,9 +59,10 @@
 
             <ProgressBar
                 android:id="@+id/searchProgress"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginEnd="8dp"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_marginEnd="10dp"
+                android:indeterminateTint="@color/nav_accent_blue"
                 android:visibility="gone" />
 
             <ImageView
@@ -66,10 +70,76 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:padding="8dp"
-                android:src="@android:drawable/ic_menu_close_clear_cancel"
-                android:tint="#8A97A8"
+                android:src="@drawable/ic_close"
+                app:tint="@color/text_secondary"
                 android:visibility="gone"
                 android:background="?android:attr/selectableItemBackgroundBorderless" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Turn-by-turn instruction card (Google-Maps dark emerald navigation HUD) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/turnCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="52dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="#0D3528"
+        app:strokeColor="#1F5C46"
+        app:strokeWidth="2dp"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp">
+
+            <ImageView
+                android:id="@+id/ivTurnArrow"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@drawable/bg_turn_icon"
+                android:padding="10dp"
+                android:src="@drawable/ic_nav_straight"
+                app:tint="#FFFFFF" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvTurnDistance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="بعد 200 م"
+                    android:textColor="#FFFFFF"
+                    android:textSize="32sp"
+                    android:fontFamily="sans-serif-black" />
+
+                <TextView
+                    android:id="@+id/tvTurnStreet"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text=""
+                    android:textColor="#A7F3D0"
+                    android:textSize="18sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -79,34 +149,53 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|start"
-        android:layout_marginStart="22dp"
-        android:layout_marginTop="80dp"
-        android:background="#CC1B2029"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:paddingTop="6dp"
-        android:paddingBottom="6dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="128dp"
+        android:background="@drawable/bg_status_pill"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
         android:text="بانتظار اتصال البلوتوث..."
-        android:textColor="#FFC65C"
-        android:textSize="12sp" />
+        android:textColor="@color/nav_warning_gold"
+        android:fontFamily="sans-serif-medium"
+        android:textSize="13sp" />
+
+
 
     <!-- Right-side floating action buttons -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="150dp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginBottom="175dp"
         android:orientation="vertical">
+
+        <!-- Compass FAB: rotates to North; taps to toggle Course-Up vs North-Up -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabCompass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="14dp"
+            android:src="@drawable/ic_compass"
+            app:backgroundTint="#1F2633"
+            app:strokeColor="#2D3545"
+            app:strokeWidth="1.5dp"
+            app:elevation="8dp"
+            app:fabSize="mini" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabService"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="14dp"
-            android:src="@android:drawable/ic_lock_power_off"
-            app:backgroundTint="#2A313D"
-            app:tint="#FF6B6B"
+            android:src="@drawable/ic_power"
+            app:backgroundTint="#1F2633"
+            app:tint="#00E676"
+            app:strokeColor="#2D3545"
+            app:strokeWidth="1.5dp"
+            app:elevation="8dp"
             app:fabSize="normal" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -114,35 +203,39 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="14dp"
-            android:src="@android:drawable/ic_menu_mapmode"
-            app:backgroundTint="#2A313D"
-            app:tint="#BFD0E6"
+            android:src="@drawable/ic_layers"
+            app:backgroundTint="#1F2633"
+            app:tint="#00E5FF"
+            app:strokeColor="#2D3545"
+            app:strokeWidth="1.5dp"
+            app:elevation="8dp"
             app:fabSize="mini" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabMyLocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_menu_mylocation"
-            app:backgroundTint="#1A73E8"
+            android:src="@drawable/ic_my_location"
+            app:backgroundTint="@color/nav_accent_blue"
             app:tint="#FFFFFF"
+            app:elevation="8dp"
             app:fabSize="normal" />
     </LinearLayout>
 
-    <!-- Attribution (required by tile providers) -->
+    <!-- Attribution -->
     <TextView
         android:id="@+id/tvAttribution"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|start"
-        android:layout_marginStart="10dp"
-        android:layout_marginBottom="6dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginBottom="8dp"
         android:background="#66000000"
         android:paddingStart="6dp"
         android:paddingEnd="6dp"
         android:text="© Mapbox © OpenStreetMap"
         android:textColor="#C8D2DF"
-        android:textSize="10sp" />
+        android:textSize="11sp" />
 
     <!-- Bottom route / status card -->
     <com.google.android.material.card.MaterialCardView
@@ -150,27 +243,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginBottom="12dp"
-        app:cardBackgroundColor="#1B2029"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="10dp">
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        app:cardBackgroundColor="@color/nav_surface"
+        app:strokeColor="@color/nav_stroke"
+        app:strokeWidth="1.5dp"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="12dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="20dp">
 
             <TextView
                 android:id="@+id/tvRouteLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="رحلة تجريبية"
-                android:textColor="#FFFFFF"
-                android:textSize="17sp"
-                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:textSize="21sp"
+                android:fontFamily="sans-serif-black"
                 android:maxLines="1"
                 android:ellipsize="end" />
 
@@ -178,26 +273,28 @@
                 android:id="@+id/tvRouteStatus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="4dp"
                 android:text="اكتب وجهة في البحث فوق للانطلاق"
-                android:textColor="#9AA7B6"
-                android:textSize="13sp" />
+                android:textColor="@color/text_secondary"
+                android:fontFamily="sans-serif"
+                android:textSize="15sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="14dp"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/tvTileSyncStatus"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
                     android:layout_weight="1"
                     android:text="كاش الشاشة: 0 بلاطة"
-                    android:textColor="#00C2FF"
-                    android:textSize="12sp" />
+                    android:textColor="@color/nav_accent_cyan"
+                    android:fontFamily="sans-serif-medium"
+                    android:textSize="14sp" />
 
                 <Button
                     android:id="@+id/btnClearRoute"
@@ -205,9 +302,49 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="مسح المسار"
-                    android:textColor="#FF6B6B"
-                    android:textSize="13sp" />
+                    android:textColor="@color/nav_danger_red"
+                    android:fontFamily="sans-serif-medium"
+                    android:textSize="15sp" />
             </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Google-Maps style Re-center Pill button (shows when user pans away, top Z-order) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/btnRecenter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="215dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="#1F2633"
+        app:strokeColor="@color/nav_accent_blue"
+        app:strokeWidth="1.5dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="20dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingStart="18dp"
+            android:paddingEnd="20dp">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_my_location"
+                app:tint="@color/nav_accent_blue" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="إعادة التوسيط"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"
+                android:fontFamily="sans-serif-bold" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 

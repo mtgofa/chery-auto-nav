@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- Smooth rounded 90 degree right turn -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="5.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M16,40 L16,24 C16,17.37 21.37,12 28,12 L33,12" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M40,12 L29,4 L29,20 Z" />
+</vector>

@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- Sharp left turn -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M30,40 L30,22 C30,15 25,12 18,17 L14,20" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M9,24 L14,13 L22,23 Z" />
+</vector>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Backgrounds & Surfaces -->
+    <color name="nav_bg">#0B0E14</color>
+    <color name="nav_surface">#161B22</color>
+    <color name="nav_surface_elevated">#1F2633</color>
+    <color name="nav_stroke">#2D3545</color>
+
+    <!-- Navigation Brand Colors (Google Maps / Tesla style) -->
+    <color name="nav_emerald_dark">#0E382A</color>
+    <color name="nav_emerald_light">#00E676</color>
+    <color name="nav_accent_blue">#0084FF</color>
+    <color name="nav_accent_cyan">#00E5FF</color>
+    <color name="nav_warning_gold">#FFB300</color>
+    <color name="nav_danger_red">#FF4D4D</color>
+
+    <!-- Typography -->
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#94A3B8</color>
+    <color name="text_tertiary">#64748B</color>
+    <color name="text_subdued">#475569</color>
+</resources>

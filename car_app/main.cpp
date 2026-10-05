@@ -93,7 +93,7 @@ static void Utf8ToTchar(const char* utf8, TCHAR* out, int maxLen)
 
 void DrawTurnManeuver(HDC hdc, int x, int y, int size, int maneuverType)
 {
-    HPEN hPen = CreatePen(PS_SOLID, 4, RGB(255, 255, 255));
+    HPEN hPen = CreatePen(PS_SOLID, 8, RGB(255, 255, 255));
     HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
     HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 255));
     HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
@@ -104,69 +104,86 @@ void DrawTurnManeuver(HDC hdc, int x, int y, int size, int maneuverType)
 
     switch (maneuverType) {
     case MANEUVER_LEFT:
-    case MANEUVER_SLIGHT_LEFT:
     case MANEUVER_SHARP_LEFT:
     {
-        // Arrow pointing left
-        MoveToEx(hdc, cx + 15, cy + 20, NULL);
-        LineTo(hdc, cx + 15, cy - 5);
-        LineTo(hdc, cx - 12, cy - 5);
+        // Bold rounded 90 degree left turn
+        MoveToEx(hdc, cx + 12, cy + 22, NULL);
+        LineTo(hdc, cx + 12, cy - 2);
+        LineTo(hdc, cx - 8, cy - 2);
 
-        POINT pts[3] = { { cx - 18, cy - 5 }, { cx - 5, cy - 15 }, { cx - 5, cy + 5 } };
+        POINT pts[3] = { { cx - 22, cy - 2 }, { cx - 7, cy - 14 }, { cx - 7, cy + 10 } };
+        Polygon(hdc, pts, 3);
+        break;
+    }
+    case MANEUVER_SLIGHT_LEFT:
+    {
+        // Bold 45 degree angled left turn
+        MoveToEx(hdc, cx + 10, cy + 22, NULL);
+        LineTo(hdc, cx + 10, cy + 8);
+        LineTo(hdc, cx - 8, cy - 8);
+
+        POINT pts[3] = { { cx - 18, cy - 14 }, { cx - 4, cy - 20 }, { cx - 8, cy - 2 } };
         Polygon(hdc, pts, 3);
         break;
     }
     case MANEUVER_RIGHT:
-    case MANEUVER_SLIGHT_RIGHT:
     case MANEUVER_SHARP_RIGHT:
     {
-        // Arrow pointing right
-        MoveToEx(hdc, cx - 15, cy + 20, NULL);
-        LineTo(hdc, cx - 15, cy - 5);
-        LineTo(hdc, cx + 12, cy - 5);
+        // Bold rounded 90 degree right turn
+        MoveToEx(hdc, cx - 12, cy + 22, NULL);
+        LineTo(hdc, cx - 12, cy - 2);
+        LineTo(hdc, cx + 8, cy - 2);
 
-        POINT pts[3] = { { cx + 18, cy - 5 }, { cx + 5, cy - 15 }, { cx + 5, cy + 5 } };
+        POINT pts[3] = { { cx + 22, cy - 2 }, { cx + 7, cy - 14 }, { cx + 7, cy + 10 } };
+        Polygon(hdc, pts, 3);
+        break;
+    }
+    case MANEUVER_SLIGHT_RIGHT:
+    {
+        // Bold 45 degree angled right turn
+        MoveToEx(hdc, cx - 10, cy + 22, NULL);
+        LineTo(hdc, cx - 10, cy + 8);
+        LineTo(hdc, cx + 8, cy - 8);
+
+        POINT pts[3] = { { cx + 18, cy - 14 }, { cx + 8, cy - 2 }, { cx + 4, cy - 20 } };
         Polygon(hdc, pts, 3);
         break;
     }
     case MANEUVER_UTURN:
     {
-        // U-turn arc. Windows CE's GDI has no Arc(), so approximate the top
-        // half of the ellipse (bbox cx-15,cy-18 .. cx+15,cy+12 -> center
-        // (cx, cy-3), radius 15) with a polyline from right over the top to
-        // left.
+        // Bold U-turn loop
         {
             POINT uarc[17];
             for (int i = 0; i <= 16; i++) {
-                double a = 3.14159265 * i / 16.0; // 0..pi
-                uarc[i].x = (int)(cx + 15.0 * cos(a));
-                uarc[i].y = (int)((cy - 3) - 15.0 * sin(a));
+                double a = 3.14159265 * i / 16.0;
+                uarc[i].x = (int)(cx + 14.0 * cos(a));
+                uarc[i].y = (int)((cy - 4) - 14.0 * sin(a));
             }
             Polyline(hdc, uarc, 17);
         }
-        MoveToEx(hdc, cx + 15, cy, NULL);
-        LineTo(hdc, cx + 15, cy + 20);
+        MoveToEx(hdc, cx + 14, cy - 4, NULL);
+        LineTo(hdc, cx + 14, cy + 22);
 
-        POINT pts[3] = { { cx - 15, cy + 22 }, { cx - 22, cy + 8 }, { cx - 8, cy + 8 } };
+        POINT pts[3] = { { cx - 14, cy + 24 }, { cx - 24, cy + 8 }, { cx - 4, cy + 8 } };
         Polygon(hdc, pts, 3);
         break;
     }
     case MANEUVER_DESTINATION:
     {
-        // Destination Pin
-        Ellipse(hdc, cx - 12, cy - 16, cx + 12, cy + 8);
-        MoveToEx(hdc, cx, cy + 8, NULL);
-        LineTo(hdc, cx, cy + 22);
+        // Bold Destination Pin
+        Ellipse(hdc, cx - 14, cy - 18, cx + 14, cy + 10);
+        MoveToEx(hdc, cx, cy + 10, NULL);
+        LineTo(hdc, cx, cy + 24);
         break;
     }
     case MANEUVER_STRAIGHT:
     default:
     {
-        // Arrow pointing straight up
-        MoveToEx(hdc, cx, cy + 20, NULL);
-        LineTo(hdc, cx, cy - 12);
+        // Bold Straight Arrow
+        MoveToEx(hdc, cx, cy + 22, NULL);
+        LineTo(hdc, cx, cy - 8);
 
-        POINT pts[3] = { { cx, cy - 20 }, { cx - 12, cy - 4 }, { cx + 12, cy - 4 } };
+        POINT pts[3] = { { cx, cy - 24 }, { cx - 14, cy - 6 }, { cx + 14, cy - 6 } };
         Polygon(hdc, pts, 3);
         break;
     }
@@ -185,29 +202,38 @@ void DrawCarMarker(HDC hdc, int cx, int cy, float headingDeg)
     float sinA = (float)sin(rad);
 
     // Car pointer triangle points
-    int tipX = (int)(cx + 20 * cosA);
-    int tipY = (int)(cy + 20 * sinA);
-    int leftX = (int)(cx + 14 * cos(rad + 2.5f));
-    int leftY = (int)(cy + 14 * sin(rad + 2.5f));
-    int rightX = (int)(cx + 14 * cos(rad - 2.5f));
-    int rightY = (int)(cy + 14 * sin(rad - 2.5f));
+    int tipX = (int)(cx + 22 * cosA);
+    int tipY = (int)(cy + 22 * sinA);
+    int leftX = (int)(cx + 15 * cos(rad + 2.5f));
+    int leftY = (int)(cy + 15 * sin(rad + 2.5f));
+    int rightX = (int)(cx + 15 * cos(rad - 2.5f));
+    int rightY = (int)(cy + 15 * sin(rad - 2.5f));
 
-    // Outer glow / halo
-    HBRUSH hHalo = CreateSolidBrush(RGB(0, 160, 255));
-    HPEN hHaloPen = CreatePen(PS_SOLID, 2, RGB(255, 255, 255));
+    // Outer soft glow
+    HBRUSH hHalo = CreateSolidBrush(RGB(0, 140, 240));
+    HPEN hHaloPen = CreatePen(PS_SOLID, 2, RGB(0, 220, 255));
     SelectObject(hdc, hHalo);
     SelectObject(hdc, hHaloPen);
-    Ellipse(hdc, cx - 18, cy - 18, cx + 18, cy + 18);
+    Ellipse(hdc, cx - 22, cy - 22, cx + 22, cy + 22);
 
-    // Arrow pointer
-    HBRUSH hArrowBrush = CreateSolidBrush(RGB(255, 255, 255));
+    // Inner White Ring
+    HBRUSH hWhite = CreateSolidBrush(RGB(255, 255, 255));
+    SelectObject(hdc, hWhite);
+    Ellipse(hdc, cx - 16, cy - 16, cx + 16, cy + 16);
+
+    // Directional Arrow Pointer (Electric Blue)
+    HBRUSH hArrowBrush = CreateSolidBrush(RGB(0, 150, 255));
+    HPEN hArrowPen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
     SelectObject(hdc, hArrowBrush);
+    SelectObject(hdc, hArrowPen);
     POINT pts[3] = { { tipX, tipY }, { leftX, leftY }, { rightX, rightY } };
     Polygon(hdc, pts, 3);
 
     DeleteObject(hHalo);
     DeleteObject(hHaloPen);
+    DeleteObject(hWhite);
     DeleteObject(hArrowBrush);
+    DeleteObject(hArrowPen);
 }
 
 void DrawDashboard(HDC hdc)
@@ -226,7 +252,7 @@ void DrawDashboard(HDC hdc)
     int mapHeight = SCREEN_HEIGHT;
 
     int carX = mapWidth / 2;
-    int carY = (int)(mapHeight * 0.65f); // Car placed slightly below center
+    int carY = (int)(mapHeight * 0.54f); // Car placed slightly below center (54%)
 
     // Check if we have an image frame from cache
     int bmpW = 0, bmpH = 0;
@@ -244,7 +270,7 @@ void DrawDashboard(HDC hdc)
     }
 
     if (!hasFullBmp) {
-        BOOL hasTiles = g_mapCache.RenderSlippyTiles(hdc, telem.latitude, telem.longitude, 16, carX, carY, mapWidth, mapHeight);
+        BOOL hasTiles = g_mapCache.RenderSlippyTiles(hdc, telem.latitude, telem.longitude, 18, carX, carY, mapWidth, mapHeight);
         if (!hasTiles) {
             // High-Speed Vector Map Viewport fallback (ideal when tiles are caching)
             RECT rcMap = { 0, 0, mapWidth, mapHeight };
@@ -313,9 +339,16 @@ void DrawDashboard(HDC hdc)
     // 2. Navigation Turn-by-Turn Card (Floating Top-Left)
     if (instr.distanceToTurnM > 0 || instr.maneuverType > 0) {
         RECT rcCard = { 20, 20, 480, 115 };
-        HBRUSH hCardBrush = CreateSolidBrush(RGB(15, 125, 75)); // Android Auto Green
+        HBRUSH hCardBrush = CreateSolidBrush(RGB(13, 53, 40)); // Google Maps Dark Emerald
         FillRect(hdc, &rcCard, hCardBrush);
         DeleteObject(hCardBrush);
+
+        HPEN hCardPen = CreatePen(PS_SOLID, 2, RGB(31, 92, 70));
+        HPEN hOldCP = (HPEN)SelectObject(hdc, hCardPen);
+        SelectObject(hdc, GetStockObject(NULL_BRUSH));
+        Rectangle(hdc, rcCard.left, rcCard.top, rcCard.right, rcCard.bottom);
+        SelectObject(hdc, hOldCP);
+        DeleteObject(hCardPen);
 
         // Maneuver Icon
         DrawTurnManeuver(hdc, 30, 30, 60, instr.maneuverType);

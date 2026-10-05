@@ -26,7 +26,9 @@ class TileManager(private val context: Context, private val sendPacketToCar: (By
     private val pendingSendQueue = ConcurrentLinkedQueue<String>()
     private val inFlightOrQueued = ConcurrentHashMap.newKeySet<String>()
 
-    private val executor = Executors.newFixedThreadPool(2)
+    // Single thread: car tiles are sent serially at ~1 per 1.2 s anyway, so a
+    // second thread only fought over the send lock.
+    private val executor = Executors.newSingleThreadExecutor()
     // Separate pool for phone-display tile downloads so they never starve the
     // car Bluetooth sync queue.
     private val displayExecutor = Executors.newFixedThreadPool(3)
@@ -34,7 +36,7 @@ class TileManager(private val context: Context, private val sendPacketToCar: (By
     private var lastSendTime = 0L
 
     companion object {
-        const val DEFAULT_ZOOM = 16
+        const val DEFAULT_ZOOM = 18
 
         fun getTileX(lon: Double, zoom: Int): Long {
             return floor((lon + 180.0) / 360.0 * (1L shl zoom)).toLong()

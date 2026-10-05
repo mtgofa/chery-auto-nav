@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- Smooth U-turn arrow -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="5.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M33,40 L33,22 C33,14 27,9 20,9 C13,9 11,15 11,24 L11,30" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M11,39 L4,28 L18,28 Z" />
+</vector>
