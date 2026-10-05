@@ -233,33 +233,39 @@ void DrawDashboard(HDC hdc)
     float heading = telem.bearingDeg;
     HBITMAP hMapBmp = g_mapCache.GetCurrentBitmap(&bmpW, &bmpH, &carX, &carY, &heading);
 
+    BOOL hasFullBmp = FALSE;
     if (hMapBmp && bmpW > 0 && bmpH > 0) {
         HDC hdcMem = CreateCompatibleDC(hdc);
         HBITMAP hOldBmp = (HBITMAP)SelectObject(hdcMem, hMapBmp);
         BitBlt(hdc, 0, 0, mapWidth, mapHeight, hdcMem, 0, 0, SRCCOPY);
         SelectObject(hdcMem, hOldBmp);
         DeleteDC(hdcMem);
-        DrawCarMarker(hdc, carX, carY, telem.bearingDeg);
-    } else {
-        // High-Speed Vector Map Viewport (ideal for Bluetooth)
-        RECT rcMap = { 0, 0, mapWidth, mapHeight };
-        HBRUSH hBg = CreateSolidBrush(RGB(18, 22, 28));
-        FillRect(hdc, &rcMap, hBg);
-        DeleteObject(hBg);
+        hasFullBmp = TRUE;
+    }
 
-        // Draw Coordinate Grid / Blocks
-        HPEN hGridPen = CreatePen(PS_SOLID, 1, RGB(28, 34, 44));
-        HPEN hOldP = (HPEN)SelectObject(hdc, hGridPen);
-        for (int x = 0; x < mapWidth; x += 40) {
-            MoveToEx(hdc, x, 0, NULL);
-            LineTo(hdc, x, mapHeight);
+    if (!hasFullBmp) {
+        BOOL hasTiles = g_mapCache.RenderSlippyTiles(hdc, telem.latitude, telem.longitude, 16, carX, carY, mapWidth, mapHeight);
+        if (!hasTiles) {
+            // High-Speed Vector Map Viewport fallback (ideal when tiles are caching)
+            RECT rcMap = { 0, 0, mapWidth, mapHeight };
+            HBRUSH hBg = CreateSolidBrush(RGB(18, 22, 28));
+            FillRect(hdc, &rcMap, hBg);
+            DeleteObject(hBg);
+
+            // Draw Coordinate Grid / Blocks
+            HPEN hGridPen = CreatePen(PS_SOLID, 1, RGB(28, 34, 44));
+            HPEN hOldP = (HPEN)SelectObject(hdc, hGridPen);
+            for (int x = 0; x < mapWidth; x += 40) {
+                MoveToEx(hdc, x, 0, NULL);
+                LineTo(hdc, x, mapHeight);
+            }
+            for (int y = 0; y < mapHeight; y += 40) {
+                MoveToEx(hdc, 0, y, NULL);
+                LineTo(hdc, mapWidth, y);
+            }
+            SelectObject(hdc, hOldP);
+            DeleteObject(hGridPen);
         }
-        for (int y = 0; y < mapHeight; y += 40) {
-            MoveToEx(hdc, 0, y, NULL);
-            LineTo(hdc, mapWidth, y);
-        }
-        SelectObject(hdc, hOldP);
-        DeleteObject(hGridPen);
 
         // Draw Vector Roads & Route
         if (polyCount > 1) {

@@ -16,7 +16,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 class BluetoothServerHelper(
     private val onCarConnected: (String) -> Unit,
     private val onCarDisconnected: () -> Unit,
-    private val onTouchEventReceived: (ProtocolConstants.TouchEvent) -> Unit
+    private val onTouchEventReceived: (ProtocolConstants.TouchEvent) -> Unit,
+    private val onTileAckReceived: ((ProtocolConstants.TileAck) -> Unit)? = null
 ) {
     // Standard Bluetooth Serial Port Profile (SPP) UUID
     private val SPP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
@@ -87,6 +88,11 @@ class BluetoothServerHelper(
                     val ev = ProtocolConstants.parseTouchEvent(payload)
                     if (ev != null) {
                         onTouchEventReceived(ev)
+                    }
+                } else if (opcode == ProtocolConstants.PKT_TYPE_TILE_ACK) {
+                    val ack = ProtocolConstants.parseTileAck(payload)
+                    if (ack != null) {
+                        onTileAckReceived?.invoke(ack)
                     }
                 }
             }

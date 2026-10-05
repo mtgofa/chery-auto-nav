@@ -27,6 +27,9 @@ public:
     // Send touch event back to phone
     BOOL SendTouch(unsigned short action, unsigned short x, unsigned short y);
 
+    // Send tile receipt acknowledgment back to phone
+    BOOL SendTileAck(unsigned char zoom, unsigned int tileX, unsigned int tileY, unsigned char status);
+
 private:
     static DWORD WINAPI ThreadProc(LPVOID lpParam);
     void WorkerLoop();

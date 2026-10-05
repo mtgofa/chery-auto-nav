@@ -15,6 +15,7 @@ import com.chery.autonav.bluetooth.BluetoothServerHelper
 import com.chery.autonav.location.LocationManagerHelper
 import com.chery.autonav.location.VehicleLocation
 import com.chery.autonav.map.MapRendererHelper
+import com.chery.autonav.map.TileManager
 import com.chery.autonav.navigation.RouteManager
 import com.chery.autonav.protocol.ProtocolConstants
 import com.chery.autonav.server.CarBridgeServer
@@ -31,6 +32,7 @@ class NavForegroundService : Service() {
     private lateinit var btHelper: BluetoothManagerHelper
     private lateinit var mapRenderer: MapRendererHelper
     private lateinit var routeManager: RouteManager
+    private lateinit var tileManager: TileManager
 
     private var scheduler: ScheduledExecutorService? = null
     private var lastLocation = VehicleLocation(30.0444, 31.2357, 0f, 0f, 20f, 3f, true)
@@ -40,6 +42,15 @@ class NavForegroundService : Service() {
     companion object {
         const val CHANNEL_ID = "CheryNavServiceChannel"
         const val NOTIFICATION_ID = 1001
+
+        var instance: NavForegroundService? = null
+            private set
+        var currentTileManager: TileManager? = null
+            private set
+        var latestLocation: VehicleLocation? = null
+            private set
+        var currentRoute: List<Pair<Double, Double>> = emptyList()
+            private set
 
         var isRunning = false
             private set
@@ -59,7 +70,9 @@ class NavForegroundService : Service() {
 
         startForeground(NOTIFICATION_ID, createNotification("Chery AutoNav Bluetooth/WiFi Bridge Active"))
 
+        instance = this
         routeManager = RouteManager()
+        currentRoute = routeManager.getRoutePoints()
         mapRenderer = MapRendererHelper(580, 480)
 
         // 1. Bluetooth SPP RFCOMM Server
@@ -72,6 +85,9 @@ class NavForegroundService : Service() {
             },
             onTouchEventReceived = { touch ->
                 handleTouch(touch)
+            },
+            onTileAckReceived = { ack ->
+                tileManager.onTileAckReceived(ack.zoom, ack.tileX, ack.tileY, ack.status)
             }
         )
         btServer.start()
@@ -91,10 +107,20 @@ class NavForegroundService : Service() {
         )
         server.start()
 
-        // 3. Location Manager
+        // 3. Tile Manager (OSM Tiles + Bluetooth Sync + Local Caching)
+        tileManager = TileManager(this) { pkt ->
+            btServer.broadcastPacket(pkt)
+            server.broadcastPacket(pkt)
+        }
+        currentTileManager = tileManager
+        tileManager.preCacheRouteTiles(currentRoute)
+
+        // 4. Location Manager
         locHelper = LocationManagerHelper(this) { loc ->
             lastLocation = loc
+            latestLocation = loc
             routeManager.updateProgress(loc.latitude, loc.longitude, loc.speedKmh)
+            tileManager.updateVehiclePosition(loc.latitude, loc.longitude)
         }
         locHelper.setSimulationMode(isSimulating)
         locHelper.startListening()
@@ -122,7 +148,9 @@ class NavForegroundService : Service() {
             try {
                 if (isSimulating) {
                     lastLocation = locHelper.tickSimulation(routeManager.getRoutePoints())
+                    latestLocation = lastLocation
                     routeManager.updateProgress(lastLocation.latitude, lastLocation.longitude, lastLocation.speedKmh)
+                    tileManager.updateVehiclePosition(lastLocation.latitude, lastLocation.longitude)
                 }
 
                 val hasClients = server.hasClients() || btServer.isConnected()

@@ -27,7 +27,11 @@ PKT_TYPE_TELEMETRY       = 0x0002
 PKT_TYPE_NAV_INSTRUCTION = 0x0003
 PKT_TYPE_MAP_IMAGE       = 0x0004
 PKT_TYPE_ROUTE_INFO      = 0x0005
+PKT_TYPE_ROUTE_POLYLINE  = 0x0006
+PKT_TYPE_MAP_TILE        = 0x0007
 PKT_TYPE_TOUCH_EVENT     = 0x0010
+PKT_TYPE_CLIENT_STATUS   = 0x0011
+PKT_TYPE_TILE_ACK        = 0x0012
 
 # Maneuvers
 MANEUVER_STRAIGHT     = 1
@@ -66,6 +70,10 @@ def pack_route_polyline(car_lat, car_lon, points):
         pts_bytes += struct.pack('<ff', float(p_lat - car_lat), float(p_lon - car_lon))
     payload = struct.pack('<H', count) + bytes(pts_bytes)
     return make_header(PKT_TYPE_ROUTE_POLYLINE, len(payload)) + payload
+
+def pack_map_tile(zoom, tile_x, tile_y, img_bytes, fmt=3):
+    payload = struct.pack('<BIIBI', zoom, tile_x, tile_y, fmt, len(img_bytes)) + img_bytes
+    return make_header(PKT_TYPE_MAP_TILE, len(payload)) + payload
 
 def create_synthetic_rgb565_map(width=580, height=480, car_x=290, car_y=312, heading=45.0, progress=0.0):
     """
@@ -147,6 +155,9 @@ def handle_client(sock, addr):
                     action, x, y, ts = struct.unpack('<HHHI', payload[:10])
                     action_names = {0: "DOWN", 1: "UP", 2: "MOVE", 3: "ZOOM_IN", 4: "ZOOM_OUT", 5: "RECENTER", 6: "MODE"}
                     print(f"[*] Touch Event from Car Screen: {action_names.get(action, action)} at ({x}, {y})")
+                elif opcode == PKT_TYPE_TILE_ACK and len(payload) >= 10:
+                    zoom, tx, ty, status = struct.unpack('<BIIB', payload[:10])
+                    print(f"[*] Tile ACK received: z={zoom}, x={tx}, y={ty} status={status} (Saved in car cache, won't resend)")
         except Exception as e:
             pass
         print(f"[-] Car Screen Reader closed for {addr}")

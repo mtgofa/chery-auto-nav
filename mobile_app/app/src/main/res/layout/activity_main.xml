@@ -24,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Navigation &amp; Map Bridge for Car Screen"
+            android:text="Navigation &amp; Map Bridge for Car Screen (Bluetooth)"
             android:textColor="#8E99A8"
             android:textSize="14sp" />
 
@@ -32,7 +32,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="20dp"
             android:background="#1C222D"
             android:orientation="vertical"
             android:padding="16dp">
@@ -69,7 +69,7 @@
                 android:id="@+id/tvIpAddress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hotspot IP: 192.168.43.1:5555"
+                android:text="Bluetooth SPP Server: CheryNavBridge"
                 android:textColor="#00DCFF"
                 android:textSize="15sp"
                 android:textStyle="bold" />
@@ -79,9 +79,43 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="Car Screen: Waiting for connection..."
+                android:text="Car Screen: Waiting for Bluetooth connection..."
                 android:textColor="#FFA726"
                 android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Live Map Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="#1C222D"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Live Navigation Map"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvTileSyncStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="10dp"
+                android:text="Car Screen Cache: 0 tiles synced"
+                android:textColor="#00DCFF"
+                android:textSize="13sp" />
+
+            <com.chery.autonav.map.OsmMapView
+                android:id="@+id/osmMapView"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:background="#14181E" />
         </LinearLayout>
 
         <!-- Simulation & Controls -->
@@ -105,7 +139,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Simulate a real drive from Tahrir to Airport to test rendering without moving."
+                android:text="Simulate a real drive from Tahrir to Airport to test tile syncing and speedometer."
                 android:textColor="#8E99A8"
                 android:textSize="13sp" />
 
@@ -131,7 +165,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Quick Setup Instructions"
+                android:text="Quick Bluetooth Setup Guide"
                 android:textColor="#00DCFF"
                 android:textSize="15sp"
                 android:textStyle="bold" />
@@ -141,7 +175,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:lineSpacingExtra="4dp"
-                android:text="1. Turn ON 'Personal Hotspot' on this phone.\n2. In car screen, connect Wi-Fi to this Hotspot.\n3. Open CheryNav.exe on the car screen.\n4. Screen will immediately mirror maps and receive live route!"
+                android:text="1. Pair your phone via Bluetooth with car radio.\n2. Turn ON 'Bridge Service' toggle above.\n3. Open CheryNav.exe on car screen.\n4. Map tiles will sync and save directly onto your car SD card."
                 android:textColor="#D0D7DE"
                 android:textSize="13sp" />
         </LinearLayout>

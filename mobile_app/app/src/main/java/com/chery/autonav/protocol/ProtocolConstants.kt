@@ -14,10 +14,12 @@ object ProtocolConstants {
     const val PKT_TYPE_MAP_IMAGE       = 0x0004
     const val PKT_TYPE_ROUTE_INFO      = 0x0005
     const val PKT_TYPE_ROUTE_POLYLINE  = 0x0006
+    const val PKT_TYPE_MAP_TILE        = 0x0007
 
     // Client -> Server Opcodes
     const val PKT_TYPE_TOUCH_EVENT     = 0x0010
     const val PKT_TYPE_CLIENT_STATUS   = 0x0011
+    const val PKT_TYPE_TILE_ACK        = 0x0012
 
     // Maneuver Types
     const val MANEUVER_NONE            = 0
@@ -186,5 +188,42 @@ object ProtocolConstants {
         val y = buffer.short.toInt() and 0xFFFF
         val timestamp = buffer.int.toLong() and 0xFFFFFFFFL
         return TouchEvent(action, x, y, timestamp)
+    }
+
+    // 7. Slippy Map Tile (Phone -> Car)
+    fun createMapTilePacket(
+        zoom: Int,
+        tileX: Long,
+        tileY: Long,
+        imageData: ByteArray,
+        format: Int = IMG_FMT_JPEG
+    ): ByteArray {
+        val payloadLen = 1 + 4 + 4 + 1 + 4 + imageData.size // 14 bytes header + imageData
+        val buffer = ByteBuffer.allocate(10 + payloadLen).order(ByteOrder.LITTLE_ENDIAN)
+        buffer.putInt(CHERY_MAGIC)
+        buffer.putShort(PKT_TYPE_MAP_TILE.toShort())
+        buffer.putInt(payloadLen)
+
+        buffer.put(zoom.toByte())
+        buffer.putInt(tileX.toInt())
+        buffer.putInt(tileY.toInt())
+        buffer.put(format.toByte())
+        buffer.putInt(imageData.size)
+        buffer.put(imageData)
+
+        return buffer.array()
+    }
+
+    // 8. Tile Reception Acknowledgment (Car -> Phone)
+    data class TileAck(val zoom: Int, val tileX: Long, val tileY: Long, val status: Int)
+
+    fun parseTileAck(payloadBytes: ByteArray): TileAck? {
+        if (payloadBytes.size < 10) return null
+        val buffer = ByteBuffer.wrap(payloadBytes).order(ByteOrder.LITTLE_ENDIAN)
+        val zoom = buffer.get().toInt() and 0xFF
+        val tileX = buffer.int.toLong() and 0xFFFFFFFFL
+        val tileY = buffer.int.toLong() and 0xFFFFFFFFL
+        val status = buffer.get().toInt() and 0xFF
+        return TileAck(zoom, tileX, tileY, status)
     }
 }

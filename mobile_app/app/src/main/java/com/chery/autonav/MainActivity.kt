@@ -25,6 +25,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvIpAddress: TextView
     private lateinit var tvCarStatus: TextView
     private lateinit var btnResetRoute: Button
+    private lateinit var tvTileSyncStatus: TextView
+    private lateinit var osmMapView: com.chery.autonav.map.OsmMapView
 
     private val handler = Handler(Looper.getMainLooper())
     private val statusChecker = object : Runnable {
@@ -42,6 +44,8 @@ class MainActivity : AppCompatActivity() {
         tvIpAddress = findViewById(R.id.tvIpAddress)
         tvCarStatus = findViewById(R.id.tvCarStatus)
         btnResetRoute = findViewById(R.id.btnResetRoute)
+        tvTileSyncStatus = findViewById(R.id.tvTileSyncStatus)
+        osmMapView = findViewById(R.id.osmMapView)
 
         requestRequiredPermissions()
 
@@ -89,6 +93,23 @@ class MainActivity : AppCompatActivity() {
         } else {
             tvCarStatus.text = "Car Screen: Waiting for Bluetooth pairing / connection..."
             tvCarStatus.setTextColor(0xFFFFA726.toInt()) // Orange
+        }
+
+        val tileMgr = NavForegroundService.currentTileManager
+        if (tileMgr != null) {
+            osmMapView.tileManager = tileMgr
+            val synced = tileMgr.getSyncedCount()
+            val pending = tileMgr.getPendingCount()
+            tvTileSyncStatus.text = "Car Screen Cache: $synced tiles synced" + (if (pending > 0) " ($pending pending)" else " (Up-to-date)")
+        }
+
+        val loc = NavForegroundService.latestLocation
+        if (loc != null) {
+            osmMapView.updateVehicle(loc.latitude, loc.longitude, loc.bearingDeg)
+        }
+        val route = NavForegroundService.currentRoute
+        if (route.isNotEmpty()) {
+            osmMapView.setRoute(route)
         }
 
         switchService.isChecked = NavForegroundService.isRunning

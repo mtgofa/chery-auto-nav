@@ -68,6 +68,14 @@ def main():
                 if frameCount % 10 == 0:
                     print(f"[Map Frame] Received Frame #{seq}: {w}x{h} ({img_len} bytes) - Car at ({cx}, {cy})")
 
+            elif opcode == 0x0007: # Slippy Map Tile
+                zoom, tx, ty, fmt, img_len = struct.unpack('<BIIBI', payload[:14])
+                print(f"[Map Tile ] Received Tile z={zoom}, x={tx}, y={ty} ({img_len} bytes) -> Replying with ACK")
+                # Send back PKT_TYPE_TILE_ACK (0x0012)
+                ack_payload = struct.pack('<BIIB', zoom, tx, ty, 1)
+                ack_hdr = struct.pack('<IHI', CHERY_MAGIC, 0x0012, len(ack_payload))
+                s.sendall(ack_hdr + ack_payload)
+
     except KeyboardInterrupt:
         print("\nDisconnecting...")
     finally:

@@ -272,6 +272,21 @@ void NavBtClient::WorkerLoop()
                     ReleaseDC(NULL, hdcScr);
                 }
                 break;
+
+            case PKT_TYPE_MAP_TILE:
+                if (payloadLen >= sizeof(NavMapTilePayload) && m_pCache) {
+                    NavMapTilePayload* pTileHdr = (NavMapTilePayload*)m_pPayloadBuffer;
+                    unsigned char* pImgData = m_pPayloadBuffer + sizeof(NavMapTilePayload);
+                    unsigned int imgLen = pTileHdr->imageBytes;
+                    if (imgLen > 0 && sizeof(NavMapTilePayload) + imgLen <= payloadLen) {
+                        HDC hdcScr = GetDC(NULL);
+                        BOOL ok = m_pCache->StoreTile(pTileHdr->zoom, pTileHdr->tileX, pTileHdr->tileY, pImgData, imgLen, hdcScr);
+                        ReleaseDC(NULL, hdcScr);
+                        // Send ACK back to phone so phone saves status and never resends this tile
+                        SendTileAck(pTileHdr->zoom, pTileHdr->tileX, pTileHdr->tileY, ok ? 1 : 0);
+                    }
+                }
+                break;
             }
 
             if (m_hwndNotify) {
@@ -348,3 +363,26 @@ BOOL NavBtClient::SendTouch(unsigned short action, unsigned short x, unsigned sh
 
     return (written1 == sizeof(hdr) && written2 == sizeof(payload));
 }
+
+BOOL NavBtClient::SendTileAck(unsigned char zoom, unsigned int tileX, unsigned int tileY, unsigned char status)
+{
+    if (!m_connected || m_hComm == INVALID_HANDLE_VALUE) return FALSE;
+
+    NavPacketHeader hdr;
+    hdr.magic = CHERY_MAGIC;
+    hdr.opcode = PKT_TYPE_TILE_ACK;
+    hdr.payloadLen = sizeof(NavTileAckPayload);
+
+    NavTileAckPayload payload;
+    payload.zoom = zoom;
+    payload.tileX = tileX;
+    payload.tileY = tileY;
+    payload.status = status;
+
+    DWORD written1 = 0, written2 = 0;
+    WriteFile(m_hComm, &hdr, sizeof(hdr), &written1, NULL);
+    WriteFile(m_hComm, &payload, sizeof(payload), &written2, NULL);
+
+    return (written1 == sizeof(hdr) && written2 == sizeof(payload));
+}
+

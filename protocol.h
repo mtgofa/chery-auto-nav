@@ -19,10 +19,12 @@
 #define PKT_TYPE_MAP_IMAGE       0x0004
 #define PKT_TYPE_ROUTE_INFO      0x0005
 #define PKT_TYPE_ROUTE_POLYLINE  0x0006
+#define PKT_TYPE_MAP_TILE        0x0007
 
 // Client -> Server Opcodes (Car to Phone)
 #define PKT_TYPE_TOUCH_EVENT     0x0010
 #define PKT_TYPE_CLIENT_STATUS   0x0011
+#define PKT_TYPE_TILE_ACK        0x0012
 
 // Maneuver Types for Turn-by-Turn
 #define MANEUVER_NONE            0
@@ -112,6 +114,23 @@ typedef struct {
     unsigned short count;
     NavRoutePoint  points[MAX_POLYLINE_POINTS];
 } NavRoutePolylinePayload;
+
+// 7. Slippy Map Tile (Phone -> Car)
+typedef struct {
+    unsigned char  zoom;        // Map Zoom level (e.g. 15 or 16)
+    unsigned int   tileX;       // Slippy tile X
+    unsigned int   tileY;       // Slippy tile Y
+    unsigned char  format;      // IMG_FMT_* (IMG_FMT_JPEG, IMG_FMT_PNG)
+    unsigned int   imageBytes;  // Length of compressed image data immediately following
+} NavMapTilePayload;
+
+// 8. Tile Reception Acknowledgment (Car -> Phone)
+typedef struct {
+    unsigned char  zoom;
+    unsigned int   tileX;
+    unsigned int   tileY;
+    unsigned char  status;      // 1 = Saved successfully, 0 = Failed
+} NavTileAckPayload;
 
 #pragma pack(pop)
 
