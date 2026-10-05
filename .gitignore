@@ -1,0 +1,24 @@
+# --- build outputs ---
+car_app/build/
+CheryAutoNav.apk
+CheryTest_Prebuilt.exe
+*.exe
+*.o
+*.obj
+
+# --- cross toolchain, if unpacked in-tree ---
+mingw32ce/
+
+# --- python ---
+__pycache__/
+*.pyc
+
+# --- editor / session scratch ---
+.claude/
+.idea/
+*.iml
+
+# Android / Gradle (the mobile_app/.gitignore covers the rest too)
+.gradle/
+.kotlin/
+local.properties
