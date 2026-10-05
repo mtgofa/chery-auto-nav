@@ -82,3 +82,38 @@ jobs:
         with:
           name: CheryAutoNav-debug-apk
           path: mobile_app/app/build/outputs/apk/debug/app-debug.apk
+
+  # Publish the two binaries to a rolling "latest" release so they have stable,
+  # public, direct download links. Runs only for master, after both builds pass.
+  #   https://github.com/mtgofa/chery-auto-nav/releases/latest/download/CheryNav.exe
+  #   https://github.com/mtgofa/chery-auto-nav/releases/latest/download/app-debug.apk
+  release:
+    name: Publish download links
+    needs: [car-app-wince, mobile-app-android]
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download the WinCE exe
+        uses: actions/download-artifact@v4
+        with:
+          name: CheryNav-wince-arm
+          path: dist
+
+      - name: Download the Android apk
+        uses: actions/download-artifact@v4
+        with:
+          name: CheryAutoNav-debug-apk
+          path: dist
+
+      - name: Update the "latest" release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Latest build
+          prerelease: true
+          body: "Automatic build of the latest master commit (${{ github.sha }})."
+          files: |
+            dist/CheryNav.exe
+            dist/app-debug.apk

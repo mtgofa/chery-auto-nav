@@ -65,7 +65,7 @@
 				AdditionalOptions=" /subsystem:windowsce,5.01"
 				OutputFile="$(OutDir)/CheryNav.exe"
 				LinkIncremental="2"
-				AdditionalDependencies="ws2.lib coredll.lib corelibc.lib"
+				AdditionalDependencies="coredll.lib corelibc.lib"
 				DelayLoadDLLs="$(NOINHERIT)"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/CheryNav.pdb"
@@ -152,7 +152,7 @@
 				AdditionalOptions=" /subsystem:windowsce,5.01"
 				OutputFile="$(OutDir)/CheryNav.exe"
 				LinkIncremental="1"
-				AdditionalDependencies="ws2.lib coredll.lib corelibc.lib"
+				AdditionalDependencies="coredll.lib corelibc.lib"
 				DelayLoadDLLs="$(NOINHERIT)"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/CheryNav.pdb"
@@ -209,10 +209,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\net_client.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\bt_client.cpp"
 				>
 			</File>
@@ -224,10 +220,6 @@
 			>
 			<File
 				RelativePath=".\map_cache.h"
-				>
-			</File>
-			<File
-				RelativePath=".\net_client.h"
 				>
 			</File>
 			<File
