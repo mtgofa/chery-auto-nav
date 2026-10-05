@@ -23,7 +23,7 @@ OUT    := build/CheryNav.exe
 # Bluetooth-only: the screen talks to the phone over the head unit's Bluetooth
 # SPP serial port (bt_client.cpp, plain COM I/O on coredll).  There is no
 # Wi-Fi/Winsock transport, so the image depends on coredll alone.
-SRC    := main.cpp map_cache.cpp bt_client.cpp
+SRC    := main.cpp map_cache.cpp bt_client.cpp cegcc_compat.cpp
 
 # -mcpu=arm920t -marm : ARMV4I, plain ARM (not Thumb), like the factory images.
 # -fno-exceptions -fno-rtti : the app uses neither; keeps the image small and
